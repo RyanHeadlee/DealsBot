@@ -42,7 +42,41 @@ def init_search(search_for):
     return unique_links[:5]
 
 
-# This function finds all the important information about the searched game
+# This function extracts all the information from the div
+# Parameters: store_div: div for either official or unofficial
+# Returns: lists of the shop names, game names, prices, and links to the storefront
+def get_details(store_div):
+    shop_names, game_names, current_prices, links = [], [], [], []
+    game_details = store_div.find_all(
+        "div",
+        class_=[
+            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container with-gift-card",
+            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container",
+            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container with-fee with-discount-code",
+            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container",
+        ],
+    )
+    for game_detail in game_details:
+        if isinstance(game_detail, Tag):
+            # Extract the attributes
+            shop_name = game_detail.attrs.get("data-shop-name")
+            game_name = game_detail.attrs.get("data-game-name")
+            current_price = game_detail.find(
+                "span", class_="price-inner game-price-current"
+            ).text
+            link = game_detail.find("a", class_="full-link")["href"]
+            link = get_final_redirect_url("https://gg.deals", link)
+
+            # Append the attributes
+            game_names.append(game_name)
+            shop_names.append(shop_name)
+            current_prices.append(current_price)
+            links.append(link)
+
+    return shop_names, game_names, current_prices, links
+
+
+# This function gets all the important information about the searched game (Official)
 # Parameters: search_for: link chosen to enter
 # Returns: lists of the shop names, game names, prices, and links to the storefront
 def get_best_offers_official(search_for):
@@ -50,33 +84,27 @@ def get_best_offers_official(search_for):
     soup = BeautifulSoup(response.text, features="html.parser")
     official_stores_div = soup.find("div", id="official-stores")
 
-    shop_names, game_names, current_prices, links = [], [], [], []
-
     if official_stores_div:
-        game_details = official_stores_div.find_all(
-            "div",
-            class_=[
-                "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container with-gift-card",
-                "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container",
-            ],
-        )
-        for game_detail in game_details:
-            if isinstance(game_detail, Tag):
-                # Extract the attributes
-                shop_name = game_detail.attrs.get("data-shop-name")
-                game_name = game_detail.attrs.get("data-game-name")
-                current_price = game_detail.find(
-                    "span", class_="price-inner game-price-current"
-                ).text
-                link = game_detail.find("a", class_="full-link")["href"]
-                link = get_final_redirect_url("https://gg.deals", link)
-
-                # Append the attributes
-                game_names.append(game_name)
-                shop_names.append(shop_name)
-                current_prices.append(current_price)
-                links.append(link)
+        shop_names, game_names, current_prices, links = get_details(official_stores_div)
     else:
         raise Exception("Error: Official Store div could not be found")
+
+    return shop_names, game_names, current_prices, links
+
+
+# This function gets all the important information about the searched game (Unofficial)
+# Parameters: search_for: link chosen to enter
+# Returns: lists of the shop names, game names, prices, and links to the storefront
+def get_best_offers_unofficial(search_for):
+    response = requests.get("https://gg.deals" + search_for)
+    soup = BeautifulSoup(response.text, features="html.parser")
+    unofficial_stores_div = soup.find("div", id="keyshops")
+
+    if unofficial_stores_div:
+        shop_names, game_names, current_prices, links = get_details(
+            unofficial_stores_div
+        )
+    else:
+        raise Exception("Error: Unofficial Store div could not be found")
 
     return shop_names, game_names, current_prices, links
