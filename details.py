@@ -4,17 +4,6 @@ from collections import OrderedDict
 from urllib.parse import urljoin
 
 
-# Function converts redirect url to the full link after redirection
-# Params: base_url - base url to prepend (https://gg.deals),
-# relative_url - relative url to append to base_url
-# Returns: final_url - the url of the page that was redirected to
-def get_final_redirect_url(base_url, relative_url):
-    full_url = urljoin(base_url, relative_url)
-    response = requests.head(full_url, allow_redirects=True)
-    final_url = response.url
-    return final_url
-
-
 # This function finds all the game and bundle links in a GGDeals page
 # Parameters: search_for - game title to search for
 # Returns: List od first five unique links that start with /game or /pack
@@ -49,12 +38,10 @@ def get_details(store_div):
     shop_names, game_names, current_prices, links = [], [], [], []
     game_details = store_div.find_all(
         "div",
-        class_=[
-            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container with-gift-card",
-            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container",
-            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container with-fee with-discount-code",
-            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container",
-        ],
+        class_=lambda c: c
+        and c.startswith(
+            "relative hoverable-box d-flex flex-wrap flex-align-center game-item cta-full item game-deals-item game-list-item keep-unmarked-container"
+        ),
     )
     for game_detail in game_details:
         if isinstance(game_detail, Tag):
@@ -65,7 +52,7 @@ def get_details(store_div):
                 "span", class_="price-inner game-price-current"
             ).text
             link = game_detail.find("a", class_="full-link")["href"]
-            link = get_final_redirect_url("https://gg.deals", link)
+            link = urljoin("https://gg.deals", link)
 
             # Append the attributes
             game_names.append(game_name)

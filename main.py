@@ -7,7 +7,9 @@ def print_offers(shop_names, game_names, prices, links):
         zip(shop_names, game_names, prices, links)
     ):
         print(
-            '{}. [{}] "{}" - {} |{}|'.format(i + 1, shop_name, game_name, price, link)
+            '{}. | {} | "{}" - {} | {} |'.format(
+                i + 1, shop_name, game_name, price, link
+            )
         )
 
 
