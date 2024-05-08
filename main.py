@@ -1,5 +1,4 @@
 from details import init_search, get_best_offers_official, get_best_offers_unofficial
-import re
 
 
 def print_offers(shop_names, game_names, prices, links):
@@ -17,11 +16,10 @@ def main():
     search_for = input()
     print()
 
-    links_to_display = init_search(search_for)
+    links_to_display, titles_to_display = init_search(search_for)
 
-    for i, link in enumerate(links_to_display):
-        link = re.sub(r"(\/game\/|\/pack\/)", "", link).rstrip("/")
-        print("{}. {}".format(i + 1, link))
+    for i, title in enumerate(titles_to_display):
+        print("{}. {}".format(i + 1, title))
     search_for = int(input())
     search_for = links_to_display[search_for - 1]
 
@@ -31,9 +29,9 @@ def main():
     shop_names_uof, game_names_uof, prices_uof, links_uof = get_best_offers_unofficial(
         search_for
     )
-    print("\nThe best offers from official storefronts:")
+    print("\nThe Best Offers From Official Storefronts:")
     print_offers(shop_names_of, game_names_of, prices_of, links_of)
-    print("\nThe best offers from unofficial storefronts:")
+    print("\nThe Best Offers From Unofficial Storefronts:")
     print_offers(shop_names_uof, game_names_uof, prices_uof, links_uof)
 
 
