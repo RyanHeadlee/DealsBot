@@ -12,15 +12,31 @@ def print_offers(shop_names, game_names, prices, links):
         )
 
 
+def get_choice(prompt, choices):
+    while True:
+        user_input = input(prompt).strip().lower()
+        if user_input in choices:
+            return user_input
+        else:
+            print(
+                "Invalid choice. Please choose one of the following: {}".format(
+                    ", ".join(choices)
+                )
+            )
+
+
 def main():
     search_for = input()
     print()
 
     links_to_display, titles_to_display = init_search(search_for)
 
+    prompt = ""
     for i, title in enumerate(titles_to_display):
-        print("{}. {}".format(i + 1, title))
-    search_for = int(input())
+        prompt += "{}. {}\n".format(i + 1, title)
+    prompt_index = [str(i + 1) for i in range(len(titles_to_display))]
+
+    search_for = int(get_choice(prompt, prompt_index))
     search_for = links_to_display[search_for - 1]
 
     shop_names_of, game_names_of, prices_of, links_of = get_best_offers_official(
