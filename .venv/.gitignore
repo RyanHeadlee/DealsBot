@@ -1,4 +1,6 @@
 venv/
 __pycache__/
-E:\Python\DealsBot\__pycache__
-E:\Python\DealsBot\.venv
+E:\Python\DealsBot\__pycache__\*
+E:\Python\DealsBot\.venv\*
+.venv
+__pycache__

@@ -12,23 +12,20 @@ def init_search(search_for):
     response = requests.get("https://gg.deals/search/?title=" + search_for)
     soup = BeautifulSoup(response.text, features="html.parser")
 
-    # Finds all the links with /game or /pack
-    links = soup.find_all(
+    # Finds all the links with /game or /pack or div with title
+    data = soup.find_all(
         "a",
+        class_="game-info-title title",
         href=lambda href: href
         and (href.startswith("/game/") or href.startswith("/pack/")),
     )
 
-    # Finds all the titles associated with the links
-    titles = soup.find_all("a", class_="game-info-title title")
-    unique_titles = list()
-    for title in titles:
-        unique_titles.append(title.attrs.get("data-title-multiline-auto-hide"))
-
     # Add links to unique_lists then use OrderedDict to keep only unique values
-    unique_links = list()
-    for link in links:
-        unique_links.append(link["href"])
+    # Add titles to unique_titles, should match w/ unique_lists
+    unique_links, unique_titles = [], []
+    for dat in data:
+        unique_links.append(dat["href"])
+        unique_titles.append(dat.attrs.get("data-title-multiline-auto-hide"))
     unique_links = list(OrderedDict.fromkeys(unique_links))
 
     # Raise error if no links were found
