@@ -101,15 +101,16 @@ def get_best_offers_unofficial(search_for):
     return shop_names, game_names, current_prices, links
 
 
+# This function formats the offers into a readable string
+# Params: the details of the offers
+# Returns: the formatted string
 def format_offer_string(shop_names, game_names, prices, links):
     formatted_offer = ""
     for i, (shop_name, game_name, price, link) in enumerate(
         zip(shop_names, game_names, prices, links)
     ):
-        formatted_offer = "\n".join(
-            '{}. | {} | "{}" - {} | {} |'.format(
-                i + 1, shop_name, game_name, price, link
-            )
+        formatted_offer += '{}. | {} | "{}" - {} | <{}> |\n'.format(
+            i + 1, shop_name, game_name, price, link
         )
 
     return formatted_offer
