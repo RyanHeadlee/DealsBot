@@ -99,3 +99,17 @@ def get_best_offers_unofficial(search_for):
         raise Exception("Error: Unofficial Store div could not be found")
 
     return shop_names, game_names, current_prices, links
+
+
+def format_offer_string(shop_names, game_names, prices, links):
+    formatted_offer = ""
+    for i, (shop_name, game_name, price, link) in enumerate(
+        zip(shop_names, game_names, prices, links)
+    ):
+        formatted_offer = "\n".join(
+            '{}. | {} | "{}" - {} | {} |'.format(
+                i + 1, shop_name, game_name, price, link
+            )
+        )
+
+    return formatted_offer

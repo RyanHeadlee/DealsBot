@@ -1,54 +1,66 @@
-from details import init_search, get_best_offers_official, get_best_offers_unofficial
+from details import (
+    init_search,
+    get_best_offers_official,
+    get_best_offers_unofficial,
+    format_offer_string,
+)
+import discord
+from discord import Intents
+from discord.ext import commands
+import asyncio
+
+intents = Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix="$", intents=intents)
 
 
-def print_offers(shop_names, game_names, prices, links):
-    for i, (shop_name, game_name, price, link) in enumerate(
-        zip(shop_names, game_names, prices, links)
-    ):
-        print(
-            '{}. | {} | "{}" - {} | {} |'.format(
-                i + 1, shop_name, game_name, price, link
-            )
+@bot.command()
+async def deal(ctx, *, game_name):
+    await ctx.send("Searching for deals for {}".format(game_name))
+
+    links, titles_to_display = init_search(game_name)
+
+    games_list = "\n".join(
+        "{}. {}".format(i + 1, title) for i, title in enumerate(titles_to_display)
+    )
+    await ctx.send(
+        "Found the following games: \n{}\nPlease select a game by typing its number (1-{}):".format(
+            games_list, len(titles_to_display)
         )
-
-
-def get_choice(prompt, choices):
-    while True:
-        user_input = input(prompt).strip().lower()
-        if user_input in choices:
-            return user_input
-        else:
-            print(
-                "Invalid choice. Please choose one of the following: {}".format(
-                    ", ".join(choices)
-                )
-            )
-
-
-def main():
-    search_for = input()
-    print()
-
-    links_to_display, titles_to_display = init_search(search_for)
-
-    prompt = ""
-    for i, title in enumerate(titles_to_display):
-        prompt += "{}. {}\n".format(i + 1, title)
-    prompt_index = [str(i + 1) for i in range(len(titles_to_display))]
-
-    search_for = int(get_choice(prompt, prompt_index))
-    search_for = links_to_display[search_for - 1]
-
-    shop_names_of, game_names_of, prices_of, links_of = get_best_offers_official(
-        search_for
     )
-    shop_names_uof, game_names_uof, prices_uof, links_uof = get_best_offers_unofficial(
-        search_for
-    )
-    print("\nThe Best Offers From Official Storefronts:")
-    print_offers(shop_names_of, game_names_of, prices_of, links_of)
-    print("\nThe Best Offers From Unofficial Storefronts:")
-    print_offers(shop_names_uof, game_names_uof, prices_uof, links_uof)
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        user_choice = await bot.wait_for("message", check=check, timeout=60)
+        index = int(user_choice.content) - 1
+        if index < 0 or index >= len(links):
+            await ctx.send("Invalid selection.")
+            return
+        selected_game = links[index]
+        shop_names_of, game_names_of, prices_of, links_of = get_best_offers_official(
+            selected_game
+        )
+        shop_names_uof, game_names_uof, prices_uof, links_uof = (
+            get_best_offers_unofficial(selected_game)
+        )
+        official_formatted = format_offer_string(
+            shop_names_of, game_names_of, prices_of, links_of
+        )
+        unofficial_formatted = format_offer_string(
+            shop_names_uof, game_names_uof, prices_uof, links_uof
+        )
+        # await ctx.send(
+        #     "Best Offers From Official Storefronts:\n{}".format(official_formatted)
+        # )
+        # await ctx.send(
+        #     "Best Offers From Unofficial Storefronts:\n{}".format(unofficial_formatted)
+        # )
+    except asyncio.TimeoutError:
+        await ctx.send("Timed Out")
+    except ValueError:
+        await ctx.send("Invalid Selection")
 
 
-main()
+bot.run("MTIzNzgzNjA5NTIyMDA5MzA0Mg.GcxgFb.tMVKdSUEiwhWhb6MMP9zHF5sztxWmo2oaIY1fU")
