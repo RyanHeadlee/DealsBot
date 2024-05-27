@@ -4,7 +4,6 @@ from details import (
     get_best_offers_unofficial,
     format_offer_string,
 )
-import discord
 from discord import Intents
 from discord.ext import commands
 import asyncio
@@ -21,6 +20,9 @@ async def deal(ctx, *, game_name):
 
     # Get first five links and titles
     links, titles_to_display = init_search(game_name)
+    if links == [] or titles_to_display == []:
+        await ctx.send("No links found for {}".format(game_name))
+        return
 
     # Get formatted list of the game titles
     games_list = "\n".join(
@@ -43,7 +45,7 @@ async def deal(ctx, *, game_name):
 
         # Index must be in range between 1 and length of the links found (max 5)
         if index < 0 or index >= len(links):
-            await ctx.send("Invalid selection.")
+            await ctx.send("Invalid selection. Out of Range.")
             return
         selected_game = links[index]
 

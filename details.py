@@ -28,10 +28,6 @@ def init_search(search_for):
         unique_titles.append(dat.attrs.get("data-title-multiline-auto-hide"))
     unique_links = list(OrderedDict.fromkeys(unique_links))
 
-    # Raise error if no links were found
-    if unique_links == []:
-        raise Exception("Error: No Links found with the search parameters")
-
     return unique_links[:5], unique_titles[:5]
 
 
