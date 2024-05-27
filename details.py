@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 # Parameters: search_for - game title to search for
 # Returns: List of first five unique links that start with /game or /pack,
 # and List of first five titles
-def init_search(search_for):
+def init_search(search_for: str) -> tuple[list, list]:
     response = requests.get("https://gg.deals/search/?title=" + search_for)
     soup = BeautifulSoup(response.text, features="html.parser")
 
@@ -34,7 +34,7 @@ def init_search(search_for):
 # This function extracts all the information from the div
 # Parameters: store_div: div for either official or unofficial
 # Returns: lists of the shop names, game names, prices, and links to the storefront
-def get_details(store_div):
+def get_details(store_div: Tag) -> tuple[list, list, list, list]:
     shop_names, game_names, current_prices, links = [], [], [], []
     game_details = store_div.find_all(
         "div",
@@ -66,7 +66,7 @@ def get_details(store_div):
 # This function gets all the important information about the searched game (Official)
 # Parameters: search_for: link chosen to enter
 # Returns: lists of the shop names, game names, prices, and links to the storefront
-def get_best_offers_official(search_for):
+def get_best_offers_official(search_for: str) -> tuple[list, list, list, list]:
     response = requests.get("https://gg.deals" + search_for)
     soup = BeautifulSoup(response.text, features="html.parser")
     official_stores_div = soup.find("div", id="official-stores")
@@ -82,7 +82,7 @@ def get_best_offers_official(search_for):
 # This function gets all the important information about the searched game (Unofficial)
 # Parameters: search_for: link chosen to enter
 # Returns: lists of the shop names, game names, prices, and links to the storefront
-def get_best_offers_unofficial(search_for):
+def get_best_offers_unofficial(search_for: str) -> tuple[list, list, list, list]:
     response = requests.get("https://gg.deals" + search_for)
     soup = BeautifulSoup(response.text, features="html.parser")
     unofficial_stores_div = soup.find("div", id="keyshops")
@@ -100,7 +100,9 @@ def get_best_offers_unofficial(search_for):
 # This function formats the offers into a readable string
 # Params: the details of the offers
 # Returns: the formatted string
-def format_offer_string(shop_names, game_names, prices, links):
+def format_offer_string(
+    shop_names: list, game_names: list, prices: list, links: list
+) -> str:
     formatted_offer = ""
     for i, (shop_name, game_name, price, link) in enumerate(
         zip(shop_names, game_names, prices, links)
