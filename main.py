@@ -1,4 +1,3 @@
-import os
 from details import (
     init_search,
     get_best_offers_official,
@@ -89,4 +88,4 @@ async def deal(ctx, *, game_name):
         await ctx.send("Invalid Selection")
 
 
-bot.run(os.getenv("Discord API Key"))
+bot.run("MTIzNzgzNjA5NTIyMDA5MzA0Mg.GcxgFb.tMVKdSUEiwhWhb6MMP9zHF5sztxWmo2oaIY1fU")
